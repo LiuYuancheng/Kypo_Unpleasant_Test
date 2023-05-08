@@ -6,6 +6,7 @@
       - curl
       - wget
       - vim
+      - build-essential
     state: present
     update_cache: yes
   become: yes
