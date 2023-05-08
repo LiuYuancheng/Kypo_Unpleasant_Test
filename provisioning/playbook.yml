@@ -1,0 +1,31 @@
+# This is an empty template playbook
+# You can write your custom configuration here
+
+# Basic config
+- name: Configuring hosts
+  hosts: hosts
+  become: yes
+  roles:
+    - hosts
+
+# Installation and configuration of each host
+- name: Configuring devices separately
+  hosts: hosts
+  become: yes
+  tasks:
+    - name: include role
+      include_role:
+        name: "{{ inventory_hostname }}"
+
+# Enable logging
+- hosts: attacker
+  become: true
+  tasks:
+    - name: Set DNS server on attacker
+      lineinfile:
+        path: /etc/resolv.conf
+        line: "nameserver 8.8.8.8"
+    - name: Add apt signing key
+      apt_key:
+        url: https://archive.kali.org/archive-key.asc
+        state: present

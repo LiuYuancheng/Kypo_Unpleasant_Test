@@ -1,0 +1,5 @@
+Options -Indexes
+
+<files credentials.txt>
+  deny from all
+</files>

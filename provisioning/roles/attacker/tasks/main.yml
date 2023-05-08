@@ -1,0 +1,11 @@
+---
+- name: Install vim, seclists and gobuster
+  apt:
+    name:
+      - seclists
+      - vim
+      - gobuster
+    state: present
+    update_cache: yes
+  become: yes
+...

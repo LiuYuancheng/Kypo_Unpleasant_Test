@@ -1,0 +1,15 @@
+---
+# Basic configuration of all host devices
+
+- name: Install net-tools
+  apt:
+    name: net-tools
+    update_cache: yes
+  become: yes
+
+- name: Install unzip
+  apt:
+    name: unzip
+    update_cache: yes
+  become: yes
+...

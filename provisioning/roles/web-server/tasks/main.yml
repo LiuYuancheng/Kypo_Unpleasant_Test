@@ -1,0 +1,181 @@
+
+# Installation of basic tools
+- name: Install curl, wget and vim
+  apt:
+    name:
+      - curl
+      - wget
+      - vim
+    state: present
+    update_cache: yes
+  become: yes
+
+- name: Create user tester
+  user:
+    name: tester
+    shell: /bin/bash
+
+- name: Download bash 4.3.0
+  copy:
+    src: ../files/bash-4.3.tar.gz
+    dest: /home/tester/
+    owner: tester
+    mode: 0755
+  become: yes
+
+- name: Use tar for our bash
+  shell: cd /home/tester && tar -xvf bash-4.3.tar.gz
+
+- name: Configure and make bash 4.3.0
+  shell: cd /home/tester/bash-4.3 && ./configure && make
+
+- name: Create a symlink
+  file:
+    src: /home/tester/bash-4.3/bash
+    dest: /bin/bash4
+    owner: root
+    group: root
+    state: link
+  become: yes
+
+# Install apache2 for web-server
+- name: Install apache2
+  apt:
+    name: apache2
+    state: present
+    update_cache: yes
+  become: yes
+
+- name: Copy the cgi-bin script
+  shell: echo "IyEvYmluL2Jhc2g0CmVjaG8gLW5lICJDb250ZW50LXR5cGU6IHRleHQvaHRtbFxuXG4iCi91c3IvYmluL3ByaW50ZW52Cg==" | base64 --decode > /usr/lib/cgi-bin/printenv
+
+- name: Update this file
+  file:
+    path: /usr/lib/cgi-bin/printenv
+    owner: root
+    group: root
+    mode: 0755
+  become: yes
+
+- name: Enable cgi
+  apache2_module:
+    state: present
+    name: cgid
+  become: yes
+
+- name: Create new user, as the developer
+  user:
+    name: michael
+    password: "{{ 'WindOfChange' | password_hash('sha512') }}"
+    shell: /bin/bash
+    state: present
+    createhome: yes
+    update_password: always
+
+- name: Add the file with default credentials into /var/www/html/
+  copy:
+    src: ../files/credentials.txt
+    dest: /var/www/html/
+    owner: root
+    mode: 0644
+
+- name: Copy .htaccess to /var/www/html/
+  copy:
+    src: ../files/.htaccess
+    dest: /var/www/html/
+    owner: root
+    mode: 0644
+
+- name: Disable directory listing
+  replace:
+    path: /etc/apache2/apache2.conf
+    after: '<Directory /var/www/>'
+    before: '</Directory>'
+    regexp: '^\tOptions Indexes FollowSymLinks'
+    replace: '\tOptions FollowSymLinks'
+  become: yes
+
+- name: Disable directory listing 2
+  replace:
+    path: /etc/apache2/apache2.conf
+    after: '<Directory /var/www/>'
+    before: '</Directory>'
+    regexp: '^\tAllowOverride None'
+    replace: '\tAllowOverride All'
+  become: yes
+
+- name: Restart apache2 service
+  service:
+    name: apache2
+    state: restarted
+  become: yes
+
+- name: Move file to michael's directory
+  copy:
+    src: ../files/try_it.py
+    dest: /home/michael/
+    owner: root
+    mode: 0644
+  become: yes
+
+- name: Create new user john with more privileges
+  user:
+    name: john
+    password: "{{ '14kcQi+2i9LLfkM' | password_hash('sha512') }}"
+    shell: /bin/bash
+    state: present
+    createhome: yes
+    update_password: always
+
+- name: Make /home/john directory only accessible for john
+  file:
+    path: /home/john
+    mode: 0700
+  become: yes
+
+- name: Install vulnerable agetty in john's directory
+  shell: cd /home/john && sudo install -m =xs $(which agetty) .
+
+- name: Change permissions for agetty
+  file:
+    path: /home/john/agetty
+    mode: u+ws
+  become: yes
+
+- name: Allow for user michael to execute python script
+  lineinfile:
+    path: /etc/sudoers
+    insertafter: '^root'
+    line: 'michael ALL=(john) NOPASSWD: /usr/bin/python3 /home/michael/try_it.py'
+  become: yes
+
+- name: Validate /etc/sudoers before saving
+  lineinfile:
+    path: /etc/sudoers
+    state: present
+    regexp: '^michael ALL='
+    line: 'michael ALL=(john) NOPASSWD: /usr/bin/python3 /home/michael/try_it.py'
+    validate: /usr/sbin/visudo -cf %s
+  become: yes
+
+- name: Create user.txt
+  shell: echo "RklJVF9TVFV7MzRTWVNIM2xsc2gwY2shOil9" | base64 --decode > /home/michael/user.txt
+
+- name: Change permissions for user.txt
+  file:
+    path: /home/michael/user.txt
+    owner: root
+    group: root
+    mode: 0444
+  become: yes
+
+- name: Create root.txt
+  shell: echo "RklJVF9TVFV7Z290X3IwMHR9" | base64 --decode | sudo tee /root/root.txt > /dev/null
+
+- name: Change permissions for root.txt
+  file:
+    path: /root/root.txt
+    owner: root
+    group: root
+    mode: 0440
+  become: yes
