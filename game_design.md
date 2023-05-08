@@ -7,7 +7,7 @@ Kali installed and place you on the same network, where their server is.
 ## Topology
 ![Game topology](./topology.svg)
 
-Router's IP - 10.32.51.2
+Router's IP - 10.32.51.1
 
 ## How to play
 You will enter Kali Linux environment on attacker machine and

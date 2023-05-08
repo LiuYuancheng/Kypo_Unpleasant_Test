@@ -29,7 +29,7 @@ Vagrant.configure("2") do |config|
       rsync__exclude: ".git/"
     device.vm.network "private_network",
       virtualbox__intnet: "switch",
-      ip: "10.32.51.2",
+      ip: "10.32.51.1",
       netmask: "255.255.255.0"
     device.vm.network "private_network",
       virtualbox__intnet: "internet-connection",

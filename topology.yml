@@ -2,27 +2,23 @@ name: unpleasant
 
 hosts:
   - name: attacker
-    flavor: csirtmu.tiny1x2
     base_box:
-      image: munikypo/kali-2020.4
+      image: kali
       mgmt_user: debian
+    flavor: csirtmu.tiny1x2
 
   - name: web-server
-    flavor: csirtmu.tiny1x2
     base_box:
-      image: munikypo/debian-10
+      image: debian-10
       mgmt_user: debian
-    extra:
-      memory: 1024
+    flavor: csirtmu.tiny1x2
 
 routers:
   - name: router
-    flavor: csirtmu.tiny1x2
     base_box:
-      image: munikypo/debian-10
+      image: debian-10
       mgmt_user: debian
-    extra:
-      memory: 1024
+    flavor: csirtmu.tiny1x2
 
 wan:
   name: internet-connection
@@ -44,9 +40,6 @@ net_mappings:
 router_mappings:
   - router: router
     network: switch
-    ip: 10.32.51.2
+    ip: 10.32.51.1
 
-groups:
-  - name: user-accessible
-    nodes:
-      - attacker
+groups: []
